@@ -54,9 +54,8 @@ export const Login = () => {
                         <input required type="password" value={password} onChange={e => setPassword(e.target.value)} className={`w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-200 ${darkMode ? 'bg-gray-800 border-gray-700 text-white' : 'bg-white border-gray-300'}`} />
                     </div>
 
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-end">
                         <button disabled={loading} className={`bg-emerald-300 text-black font-semibold px-4 py-2 rounded border-2 border-emerald-300 shadow-md transform transition duration-200 ${loading ? 'opacity-60 cursor-not-allowed' : 'hover:shadow-lg hover:-translate-y-0.5'}`}>Entrar</button>
-                        <a className={`text-sm ${darkMode ? 'text-gray-400 hover:text-gray-300' : 'text-gray-500 hover:text-gray-700'}`} href="/forgot">¿Olvidaste tu contraseña?</a>
                     </div>
                 </form>
 

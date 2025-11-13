@@ -1,28 +1,29 @@
+# ----------------------------------------------------------------> ENDPOINTS DE PERFIL (GET, PUT, DELETE)
+from api.email import send_email
+from datetime import timedelta
+from email.message import EmailMessage
+import smtplib
+from flask_cors import CORS
+from flask_jwt_extended import JWTManager
+from flask_jwt_extended import jwt_required
+from flask_jwt_extended import get_jwt_identity
+from flask_jwt_extended import create_access_token
+from flask_jwt_extended import decode_token
+from api.commands import setup_commands
+from api.admin import setup_admin
+from api.routes import api
+from api.models import db, User
+from api.utils import APIException, generate_sitemap
+from flask_swagger import swagger
+from flask_migrate import Migrate
+from flask import Flask, request, jsonify, url_for, send_from_directory
+import os
+import random
+
+
 """
 This module takes care of starting the API Server, Loading the DB and Adding the endpoints
 """
-import random
-import os
-from flask import Flask, request, jsonify, url_for, send_from_directory
-from flask_migrate import Migrate
-from flask_swagger import swagger
-from api.utils import APIException, generate_sitemap
-from api.models import db, User
-from api.routes import api
-from api.admin import setup_admin
-from api.commands import setup_commands
-from flask_jwt_extended import decode_token
-
-from flask_jwt_extended import create_access_token
-from flask_jwt_extended import get_jwt_identity
-from flask_jwt_extended import jwt_required
-from flask_jwt_extended import JWTManager
-from flask_cors import CORS
-import os
-import smtplib
-from email.message import EmailMessage
-from datetime import timedelta
-from api.email import send_email
 
 
 # from models import Person

@@ -1,4 +1,5 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 import { useDarkMode } from '../context/DarkModeContext'
 
@@ -46,12 +47,42 @@ function applyStyle(name, styles) {
 
 export const Generator = () => {
     const { darkMode } = useDarkMode()
+    const navigate = useNavigate()
     const [category, setCategory] = useState('rpg')
     const [styles, setStyles] = useState({ fantasy: true, futuristic: false, grim: false, silly: false })
     const [count, setCount] = useState(8)
     const [mandatory, setMandatory] = useState('')
     const [results, setResults] = useState([])
     const [showConfirmModal, setShowConfirmModal] = useState(false)
+    const [serverPrefixes, setServerPrefixes] = useState([])
+
+    useEffect(() => {
+        // Intentamos obtener datos protegidos del servidor; si el token es inválido redirigimos a login
+        const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null
+        if (!token) return // ProtectedRoute ya redirige, pero evitamos peticiones si no hay token
+
+        const backend = import.meta.env.VITE_BACKEND_URL || ''
+        fetch(backend + '/generator-data', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        }).then(async res => {
+            if (res.status === 401 || res.status === 403) {
+                // token inválido o expirado
+                localStorage.removeItem('token')
+                navigate('/login')
+                return
+            }
+            if (!res.ok) return
+            const data = await res.json()
+            if (data && data.server_prefixes) setServerPrefixes(data.server_prefixes)
+        }).catch(err => {
+            // No hacemos nada en fallo de red; el generador funciona en cliente
+            console.warn('No se pudo obtener datos protegidos:', err)
+        })
+    }, [navigate])
 
     const generateOne = () => {
         const cat = CATEGORIES[category]
@@ -70,10 +101,38 @@ export const Generator = () => {
         return name
     }
 
-    const generate = () => {
-        const list = []
-        for (let i = 0; i < count; i++) list.push(generateOne())
-        setResults(list)
+    const generate = async () => {
+        const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null
+        const backend = import.meta.env.VITE_BACKEND_URL || ''
+        try {
+            const res = await fetch(backend + '/generate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': token ? `Bearer ${token}` : ''
+                },
+                body: JSON.stringify({ category, styles, count, mandatory })
+            })
+
+            if (res.status === 401 || res.status === 403) {
+                // Token inválido/expirado
+                localStorage.removeItem('token')
+                navigate('/login')
+                return
+            }
+
+            if (!res.ok) {
+                console.warn('Error al generar en servidor', res.status)
+                return
+            }
+
+            const data = await res.json()
+            if (data && Array.isArray(data.results)) {
+                setResults(data.results)
+            }
+        } catch (err) {
+            console.warn('Fallo al conectar con backend para generar:', err)
+        }
     }
 
     const handleGenerateClick = () => {
@@ -130,6 +189,17 @@ export const Generator = () => {
                             <button onClick={() => { setResults([]) }} className="border px-4 py-2 rounded">Limpiar</button>
                         </div>
                     </div>
+
+                    {serverPrefixes.length > 0 && (
+                        <div className="mt-4">
+                            <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-gray-300' : ''}`}>Prefijos del servidor</label>
+                            <div className="flex gap-2 flex-wrap">
+                                {serverPrefixes.map((p, i) => (
+                                    <span key={i} className="px-2 py-1 rounded bg-emerald-100 text-emerald-800 text-sm">{p}</span>
+                                ))}
+                            </div>
+                        </div>
+                    )}
 
                     <div className="mt-4">
                         <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-gray-300' : ''}`}>Estilos (mezcla)</label>

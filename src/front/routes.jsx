@@ -14,6 +14,7 @@ import { Login } from "./pages/Login";
 import { ForgotPassword } from "./pages/ForgotPassword";
 import { ResetPassword } from "./pages/ResetPassword";
 import { Generator } from "./pages/Generator";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 export const router = createBrowserRouter(
   createRoutesFromElements(
@@ -32,7 +33,7 @@ export const router = createBrowserRouter(
       <Route path="/login" element={<Login />} />
       <Route path="/forgot" element={<ForgotPassword />} />
       <Route path="/reset" element={<ResetPassword />} />
-      <Route path="/generator" element={<Generator />} />
+      <Route path="/generator" element={<ProtectedRoute><Generator /></ProtectedRoute>} />
       <Route path="/single/:theId" element={<Single />} />  {/* Dynamic route for single items */}
       <Route path="/demo" element={<Demo />} />
     </Route>

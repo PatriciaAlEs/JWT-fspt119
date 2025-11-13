@@ -1,6 +1,7 @@
 """
 This module takes care of starting the API Server, Loading the DB and Adding the endpoints
 """
+import random
 import os
 from flask import Flask, request, jsonify, url_for, send_from_directory
 from flask_migrate import Migrate
@@ -144,6 +145,99 @@ def private():
     current_user = get_jwt_identity()
     user = User.query.get(current_user)
     return jsonify(user.serialize()), 200
+
+
+# ----------------------------------------------------------------> ENDPOINT PROTEGIDO PARA EL GENERADOR (ejemplo)
+@app.route('/generator-data', methods=['GET'])
+@jwt_required()
+def generator_data():
+    # Devuelve datos de ejemplo que solo un usuario autenticado puede obtener
+    current_user = get_jwt_identity()
+    user = User.query.get(current_user)
+    sample_prefixes = ['Srv', 'Gen', 'Core', 'Mint', 'Aero']
+    return jsonify({
+        'msg': 'Acceso concedido al generador',
+        'user': user.serialize() if user else None,
+        'server_prefixes': sample_prefixes
+    }), 200
+
+
+# ----------------------------------------------------------------> ENDPOINT PROTEGIDO QUE GENERA NOMBRES
+
+
+def _rand(arr):
+    return arr[random.randint(0, len(arr) - 1)]
+
+
+# Reproducimos las categorías y estilos en el backend (versión simplificada)
+CATEGORIES = {
+    'rpg': {
+        'prefixes': ['Aer', 'Bel', 'Cal', 'Dor', 'El', 'Fin', 'Gal', 'Har', 'Ith', 'Jar', 'Kel', 'Lun', 'Mor', 'Ner', 'Or', 'Pel', 'Qir', 'Ryn', 'Sol', 'Tor'],
+        'middles': ['an', 'or', 'en', 'is', 'ar', 'il', 'us', 'ath', 'ion', 'el', 'ir'],
+        'suffixes': ['dor', 'wen', 'thas', 'mar', 'gorn', 'dil', 'wyn', 'nor', 'ion', 'rus', 'mir', 'thil']
+    },
+    'shooter': {
+        'prefixes': ['Ghost', 'Viper', 'Zero', 'Alpha', 'Blaze', 'Raptor', 'Strike', 'Delta', 'Nova', 'Echo', 'Reaper', 'Shadow', 'Specter'],
+        'middles': ['_', '-', 'X', '', 'Z', 'Rx'],
+        'suffixes': ['01', '99', 'Pro', 'Elite', 'Sniper', 'Shot', 'Ops', 'Core', 'Edge']
+    },
+    'br': {
+        'prefixes': ['Sky', 'Storm', 'Grim', 'Wild', 'Iron', 'Titan', 'Prime', 'Blade', 'Rogue', 'Pulse', 'Venom', 'Apex', 'Crimson', 'Vortex', 'Phantom'],
+        'middles': ['', '-', '_', '', 'X', 'Rx', 'Z'],
+        'suffixes': ['Survivor', 'Runner', 'King', 'Queen', 'Slayer', 'Champion', 'Drift', 'Edge', 'Hunter', 'Breaker', 'Master']
+    }
+}
+
+
+def _apply_style(name, styles):
+    out = name
+    if styles.get('fantasy'):
+        out = out.replace('X', 'a').replace('0', 'o')
+    if styles.get('futuristic'):
+        out = ''.join([c.upper() if i % 2 else c for i, c in enumerate(out)])
+    if styles.get('grim'):
+        out = ''.join([c for c in out if c.lower() not in 'aeiou'])
+    if styles.get('silly'):
+        out = out + random.choice(['~', '!!', '_o_', '~'])
+    return out
+
+
+@app.route('/generate', methods=['POST'])
+@jwt_required()
+def generate_names():
+    body = request.get_json(silent=True)
+    if not body:
+        return jsonify({'msg': 'Faltan datos'}), 400
+
+    category = body.get('category', 'rpg')
+    styles = body.get('styles', {})
+    count = int(body.get('count', 8))
+    mandatory = body.get('mandatory', '')
+
+    # Limitamos la cantidad
+    if count < 1:
+        count = 1
+    if count > 10:
+        count = 10
+
+    if category not in CATEGORIES:
+        return jsonify({'msg': 'Categoría inválida'}), 400
+
+    cat = CATEGORIES[category]
+
+    results = []
+    for _ in range(count):
+        if mandatory and mandatory.strip():
+            a = mandatory.strip().capitalize()
+        else:
+            a = _rand(cat['prefixes'])
+        b = _rand(cat['middles'])
+        c = _rand(cat['suffixes'])
+        name = f"{a}{b}{c}"
+        name = _apply_style(name, styles)
+        results.append(name)
+
+    return jsonify({'results': results}), 200
 
 
 # ----------------------------------------------------------------> ENDPOINT DE RECUPERACION (simulado)

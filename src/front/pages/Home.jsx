@@ -39,10 +39,6 @@ export const Home = () => {
 								</button>
 							</Link>
 						</div>
-
-						<p className={`text-sm mt-4 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-							¿Olvidaste tu contraseña? <Link to="/forgot" className="text-emerald-300 underline">Recupérala aquí</Link>.
-						</p>
 					</div>
 
 					<div className={`rounded-2xl p-8 shadow-2xl ${darkMode ? 'bg-gray-900 text-white' : 'bg-black text-white'}`}>

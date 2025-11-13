@@ -11,7 +11,7 @@ export const Generator = () => {
     const { darkMode } = useDarkMode()
     const navigate = useNavigate()
     const [category, setCategory] = useState('rpg')
-    const [styles, setStyles] = useState({ fantasy: true, futuristic: false, grim: false, silly: false })
+    const [style, setStyle] = useState('fantasy')
     const [count, setCount] = useState(8)
     const [mandatory, setMandatory] = useState('')
     const [results, setResults] = useState([])
@@ -44,7 +44,7 @@ export const Generator = () => {
     const generate = async () => {
         try {
             setLoading(true)
-            const res = await generateNames({ category, styles, count, mandatory })
+            const res = await generateNames({ category, style, count, mandatory })
             if (res.status === 401 || res.status === 403) {
                 // Token inválido/expirado
                 localStorage.removeItem('token')
@@ -80,8 +80,6 @@ export const Generator = () => {
         setShowConfirmModal(false)
         generate()
     }
-
-    const toggleStyle = (k) => setStyles(s => ({ ...s, [k]: !s[k] }))
 
     return (
         <div className={`py-12 ${darkMode ? 'bg-gray-950 text-white' : 'bg-white text-black'}`}>
@@ -135,17 +133,7 @@ export const Generator = () => {
                         </div>
                     )}
 
-                    <div className="mt-4">
-                        <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-gray-300' : ''}`}>Estilos (mezcla)</label>
-                        <div className="flex gap-3 flex-wrap">
-                            {Object.keys(STYLE_MODS).map(k => (
-                                <label key={k} className="inline-flex items-center gap-2">
-                                    <input type="checkbox" checked={styles[k]} onChange={() => toggleStyle(k)} />
-                                    <span className="text-sm">{STYLE_MODS[k].label}</span>
-                                </label>
-                            ))}
-                        </div>
-                    </div>
+
                 </div>
 
                 <div>

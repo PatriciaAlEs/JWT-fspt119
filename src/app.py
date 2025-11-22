@@ -9,18 +9,17 @@ from flask_jwt_extended import jwt_required
 from flask_jwt_extended import get_jwt_identity
 from flask_jwt_extended import create_access_token
 from flask_jwt_extended import decode_token
-from src.api.email import send_email
 from src.api.commands import setup_commands
 from src.api.admin import setup_admin
 from src.api.routes import api
 from src.api.models import db, User
 from src.api.utils import APIException, generate_sitemap
-
 from flask_swagger import swagger
 from flask_migrate import Migrate
 from flask import Flask, request, jsonify, url_for, send_from_directory
 import os
 import random
+
 
 
 """

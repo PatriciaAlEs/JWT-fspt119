@@ -79,10 +79,8 @@ Patricia Álvarez Estevez
 
 🌍 Portfolio: (Work in progress)
 
-👉 ¿Qué le añadiría como siguiente paso?
 
-1️⃣ Captura de pantalla o GIF funcionando → muchísimo impacto visual
-2️⃣ Un mini apartado explicando cómo se generan los nombres (simple, pero sumas puntos técnicos)
-3️⃣ Un badge al principio tipo:
+
+
 
 ![Status](https://img.shields.io/badge/status-in%20progress-yellow)

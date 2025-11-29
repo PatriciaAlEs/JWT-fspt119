@@ -30,10 +30,11 @@ Proyecto creado para practicar integración cliente-servidor, arquitectura escal
 
 ## 📸 Vista previa
 
+Pantalla principal de NameGen — interfaz para generar nombres personalizados:
+
 <p align="center">
   <img src="./src/front/assets/img/Captura%20de%20pantalla%202025-11-29%20113001.png" width="85%" />
 </p>
-
 
 ---
 
